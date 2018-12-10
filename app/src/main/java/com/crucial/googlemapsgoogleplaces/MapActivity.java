@@ -12,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -24,6 +25,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
@@ -125,6 +128,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 return false;
             }
         });
+
+        hideSoftKeyboard();
     }
 
     private void geoLocate() {
@@ -144,6 +149,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             Address address= list.get(0);
 
             Log.d(TAG,"geoLocate: found a location: " + address.toString());
+
+            moveCamera(new LatLng(address.getLatitude(),address.getLongitude()),DEFAULT_ZOOM,address.getAddressLine(0));
         }
     }
 
@@ -174,7 +181,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             if (task.isSuccessful()){
                                 Log.d(TAG,"onComplete: found location");
                                 Location currentLocation = (Location) task.getResult();
-                                moveCamera(new LatLng(Objects.requireNonNull(currentLocation).getLatitude(),currentLocation.getLongitude()),DEFAULT_ZOOM);
+                                moveCamera(new LatLng(Objects.requireNonNull(currentLocation).getLatitude(),currentLocation.getLongitude()),DEFAULT_ZOOM,"My Location");
                             }else{
                                 Log.d(TAG,"onComplete: current location is null");
                                 Toast.makeText(MapActivity.this, "Unable to get current location", Toast.LENGTH_SHORT).show();
@@ -191,9 +198,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-    private void moveCamera(LatLng latLng,float zoom){
+    private void moveCamera(LatLng latLng,float zoom,String title){
         Log.d(TAG, "moveCamera: Moving the camera to lat: " + latLng.latitude + ", lng: " + latLng.longitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
+
+        if(!title.equals("My Location")){
+            MarkerOptions options = new MarkerOptions().position(latLng).title(title);
+            mMap.addMarker(options);
+        }
+
+
+        hideSoftKeyboard();
     }
 
     private void initMap(){
@@ -229,5 +244,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
             mLocationPermissionsGranted = true;
         }
+    }
+
+    private void hideSoftKeyboard(){
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 }
