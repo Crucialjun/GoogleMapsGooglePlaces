@@ -14,7 +14,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
+import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +25,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -73,11 +72,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final int LOCATION_PERMISSION_CODE = 1234;
     private static final float DEFAULT_ZOOM = 15f;
 
-    private EditText mSearchtext;
+    private AutoCompleteTextView mSearchtext;
 
     private boolean mLocationPermissionsGranted = false;
     private GoogleMap mMap;
     private SupportMapFragment mapFragment;
+    private PlaceAutocompleteAdapter mPlaceAutocompleteAdapter;
 
 
 
@@ -114,6 +114,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private void init(){
         Log.d(TAG,"init: initializing");
+
+        mPlaceAutocompleteAdapter = new PlaceAutocompleteAdapter()
 
         mSearchtext.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
